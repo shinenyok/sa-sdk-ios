@@ -102,11 +102,6 @@
         }
     }
 
-#ifndef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
-    if ([object isKindOfClass:UIWebView.class]) { // 暂不支持 UIWebView，添加弹框
-        [self addUIWebViewAlertInfo];
-    } else
-#endif
     if ([object isKindOfClass:WKWebView.class]) {
         // 针对 WKWebView 数据检查
         WKWebView *webView = (WKWebView *)object;
@@ -258,20 +253,6 @@ propertyDescription:(SAPropertyDescription *)propertyDescription
 }
 
 #pragma mark webview
-
-#ifndef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
-/// 添加 UIWebView 弹框信息
-- (void)addUIWebViewAlertInfo {
-    [[SAVisualizedObjectSerializerManger sharedInstance] enterWebViewPageWithWebInfo:nil];
-
-    NSMutableDictionary *alertInfo = [NSMutableDictionary dictionary];
-    alertInfo[@"title"] = @"当前页面无法进行可视化全埋点";
-    alertInfo[@"message"] = @"此页面包含 UIWebView，iOS App 内嵌 H5 可视化全埋点，只支持 WKWebView";
-    alertInfo[@"link_text"] = @"配置文档";
-    alertInfo[@"link_url"] = @"https://manual.sensorsdata.cn/sa/latest/enable_visualized_autotrack-7548675.html";
-    [[SAVisualizedObjectSerializerManger sharedInstance] registWebAlertInfos:@[alertInfo]];
-}
-#endif
 
 /// 检查 WKWebView 相关信息
 - (void)checkWKWebViewInfoWithWebView:(WKWebView *)webView {
