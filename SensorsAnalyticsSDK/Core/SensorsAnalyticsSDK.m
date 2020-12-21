@@ -79,7 +79,7 @@
 #import "SAModuleManager.h"
 #import "SAChannelMatchManager.h"
 
-#define VERSION @"2.2.4"
+#define VERSION @"2.2.3"
 
 static NSUInteger const SA_PROPERTY_LENGTH_LIMITATION = 8191;
 
@@ -2199,7 +2199,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 }
 #endif
 
-- (void)_enableAutoTrack {    
+- (void)_enableAutoTrack {
     // 监听所有 UIViewController 显示事件
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
@@ -2986,7 +2986,8 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     @synchronized(self) {
         //加上最小值保护，50
         NSInteger newBulkSize = (NSInteger)bulkSize;
-        self.configOptions.flushBulkSize = newBulkSize >= 50 ? newBulkSize : 50;
+//        self.configOptions.flushBulkSize = newBulkSize >= 50 ? newBulkSize : 50;
+        self.configOptions.flushBulkSize = newBulkSize ;
     }
 }
 

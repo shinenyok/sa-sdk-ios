@@ -94,7 +94,7 @@
     int hashCode = [jsonString sensorsdata_hashCode];
     jsonString = [jsonString stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet alphanumericCharacterSet]];
     NSString *bodyString = [NSString stringWithFormat:@"crc=%d&gzip=%d&data_list=%@", hashCode, gzip, jsonString];
-    return [bodyString dataUsingEncoding:NSUTF8StringEncoding];
+    return [jsonString dataUsingEncoding:NSUTF8StringEncoding];
 }
 
 - (NSURLRequest *)buildFlushRequestWithServerURL:(NSURL *)serverURL HTTPBody:(NSData *)HTTPBody {
@@ -104,6 +104,7 @@
     request.HTTPBody = HTTPBody;
     // 普通事件请求，使用标准 UserAgent
     [request setValue:@"SensorsAnalytics iOS SDK" forHTTPHeaderField:@"User-Agent"];
+    [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
     if ([SensorsAnalyticsSDK.sdkInstance debugMode] == SensorsAnalyticsDebugOnly) {
         [request setValue:@"true" forHTTPHeaderField:@"Dry-Run"];
     }
@@ -116,6 +117,7 @@
 
 - (void)requestWithRecords:(NSArray<SAEventRecord *> *)records completion:(void (^)(BOOL success))completion {
     [SAHTTPSession.sharedInstance.delegateQueue addOperationWithBlock:^{
+        NSLog(@"count--------%li",records.count);
         // 判断是否加密数据
         BOOL isEncrypted = self.enableEncrypt && records.firstObject.isEncrypted;
         // 拼接 json 数据
@@ -161,10 +163,21 @@
             BOOL flushSuccess = self.isDebugMode || successCode;
             completion(flushSuccess);
         };
-
+        NSDictionary *dict = [NSDictionary dictionary];
+        @try {
+            NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+           NSArray *array  = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:nil];
+            dict = array.firstObject;
+        } @catch (NSException *exception) {
+            SALogError(@"%@: %@", self, exception);
+        }
+        if (!dict || !dict.count) {
+            return;
+        }
+        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:dict options:0 error:nil];
         // 转换成发送的 http 的 body
         NSData *HTTPBody = [self buildBodyWithJSONString:jsonString isEncrypted:isEncrypted];
-        NSURLRequest *request = [self buildFlushRequestWithServerURL:self.serverURL HTTPBody:HTTPBody];
+        NSURLRequest *request = [self buildFlushRequestWithServerURL:self.serverURL HTTPBody:jsonData];
         NSURLSessionDataTask *task = [SAHTTPSession.sharedInstance dataTaskWithRequest:request completionHandler:handler];
         [task resume];
     }];

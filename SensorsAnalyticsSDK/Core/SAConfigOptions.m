@@ -94,7 +94,8 @@
 }
 
 - (void)setFlushBulkSize:(NSInteger)flushBulkSize {
-    _flushBulkSize = flushBulkSize >= 50 ? flushBulkSize : 50;
+//    _flushBulkSize = flushBulkSize >= 50 ? flushBulkSize : 50;
+    _flushBulkSize = flushBulkSize;
 }
 
 - (void)setMaxCacheSize:(NSInteger)maxCacheSize {

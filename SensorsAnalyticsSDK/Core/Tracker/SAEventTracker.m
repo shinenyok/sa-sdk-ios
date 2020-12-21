@@ -119,7 +119,8 @@
     if (![self canFlush]) {
         return;
     }
-    BOOL isFlushed = [self flushRecordsWithSize:self.isDebugMode ? 1 : 50];
+    BOOL isFlushed = [self flushRecordsWithSize: 1];
+//    BOOL isFlushed = [self flushRecordsWithSize:self.isDebugMode ? 1 : 50];
     if (isFlushed) {
         SALogInfo(@"Events flushed!");
     }
